@@ -24,10 +24,10 @@ VercelではSQLiteが使用できないため、外部データベースが必�
 4. Vercelの環境変数に設定
 
 **接続情報の取得:**
-- `DB_HOST`: `db.xxxxx.supabase.co`（Supabaseダッシュボードの「Settings」→「Database」で確認）
+- `DB_HOST`: `db.xxxxx.supabase.co`
 - `DB_NAME`: `postgres`
 - `DB_USER`: `postgres`
-- `DB_PASSWORD`: プロジェクト作成時に設定したパスワード（Supabaseダッシュボードで確認）
+- `DB_PASSWORD`: TIiVKbjzKOFcF8Kg
 - `DB_PORT`: `5432`
 
 ### 2. **Neon** ⭐️ サーバーレス対応
