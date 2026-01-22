@@ -71,8 +71,7 @@
     <!-- Is Active -->
     <div class="flex items-center">
       <input type="checkbox" name="{{ form.is_active.name }}" id="{{ form.is_active.id_for_label }}"
-        class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" {% if form.is_active.value
-        %}checked{% endif %}>
+        class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" {% if form.is_active.value %}checked{% endif %}>
       <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm text-gray-900">
         有効 (チェックを外すと論理削除されます)
       </label>
