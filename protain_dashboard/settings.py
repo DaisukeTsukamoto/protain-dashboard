@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables from .env file
+# Load environment variables from .env file (local development only)
 load_dotenv(BASE_DIR / '.env')
 
 
@@ -78,53 +78,39 @@ WSGI_APPLICATION = 'protain_dashboard.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Database configuration
-# Use PostgreSQL if DB_HOST is set, otherwise fallback to SQLite for local development
+# PostgreSQL (Supabase) configuration
 from urllib.parse import urlparse
 
 DB_HOST = os.getenv('DB_HOST', '')
-DB_USE_POSTGRES = os.getenv('DB_USE_POSTGRES', 'False') == 'True'  # 明示的にPostgreSQLを使用する場合
-
-if DB_HOST and DB_USE_POSTGRES:
-    # PostgreSQL (Supabase) configuration
-    # Support both connection string format and individual parameters
-    if DB_HOST.startswith('postgresql://') or DB_HOST.startswith('postgres://'):
-        # Parse connection string
-        parsed = urlparse(DB_HOST)
-        DATABASES = {
-            'default': {
-                'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-                'NAME': parsed.path.lstrip('/') or os.getenv('DB_NAME', 'postgres'),
-                'USER': parsed.username or os.getenv('DB_USER', 'postgres'),
-                'PASSWORD': parsed.password or os.getenv('DB_PASSWORD', ''),
-                'HOST': parsed.hostname,
-                'PORT': parsed.port or os.getenv('DB_PORT', '5432'),
-                'OPTIONS': {
-                    'sslmode': 'require',
-                },
-            }
-        }
-    else:
-        # Individual parameters
-        DATABASES = {
-            'default': {
-                'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-                'NAME': os.getenv('DB_NAME', 'postgres'),
-                'USER': os.getenv('DB_USER', 'postgres'),
-                'PASSWORD': os.getenv('DB_PASSWORD', ''),
-                'HOST': DB_HOST,
-                'PORT': os.getenv('DB_PORT', '5432'),
-                'OPTIONS': {
-                    'sslmode': 'require',
-                },
-            }
-        }
-else:
-    # SQLite fallback for local development
+if DB_HOST.startswith('postgresql://') or DB_HOST.startswith('postgres://'):
+    # Parse connection string
+    parsed = urlparse(DB_HOST)
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': parsed.path.lstrip('/') or 'postgres',
+            'USER': parsed.username or 'postgres',
+            'PASSWORD': parsed.password or '',
+            'HOST': parsed.hostname,
+            'PORT': parsed.port or '5432',
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
+        }
+    }
+else:
+    # Individual parameters
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'postgres'),
+            'USER': os.getenv('DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': DB_HOST,
+            'PORT': os.getenv('DB_PORT', '5432'),
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
         }
     }
 
@@ -165,7 +151,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = []
 
 # Media files
 MEDIA_URL = '/media/'
