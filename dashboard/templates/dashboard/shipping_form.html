@@ -1,57 +1,141 @@
-{% extends 'dashboard/base.html' %}
+﻿{% extends 'dashboard/base.html' %}
 
-{% block title %}配送先{% endblock %}
-{% block page_title %}配送先{% endblock %}
+{% block title %}配送先登録/編集 - ProteinAdmin{% endblock %}
 
 {% block content %}
-  <div class="card">
-    <form method="post" class="form-grid">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
-      <div>
-        <label for="{{ form.member.id_for_label }}">会員</label>
-        {{ form.member }}
-        {{ form.member.errors }}
-      </div>
-      <div>
-        <label for="{{ form.label.id_for_label }}">配送先名</label>
-        {{ form.label }}
-        {{ form.label.errors }}
-      </div>
-      <div>
-        <label for="{{ form.postal_code.id_for_label }}">郵便番号</label>
-        {{ form.postal_code }}
-        {{ form.postal_code.errors }}
-      </div>
-      <div>
-        <label for="{{ form.address1.id_for_label }}">住所1</label>
-        {{ form.address1 }}
-        {{ form.address1.errors }}
-      </div>
-      <div>
-        <label for="{{ form.address2.id_for_label }}">住所2</label>
-        {{ form.address2 }}
-        {{ form.address2.errors }}
-      </div>
-      <div>
-        <label for="{{ form.recipient_name.id_for_label }}">宛名</label>
-        {{ form.recipient_name }}
-        {{ form.recipient_name.errors }}
-      </div>
-      <div>
-        <label for="{{ form.phone.id_for_label }}">電話番号</label>
-        {{ form.phone }}
-        {{ form.phone.errors }}
-      </div>
-      <div>
-        <label for="{{ form.is_active.id_for_label }}">有効</label>
-        {{ form.is_active }}
-        {{ form.is_active.errors }}
-      </div>
-      <div class="form-actions">
-        <button class="btn" type="submit">保存</button>
-        <a class="btn secondary" href="{% url 'shipping-list' %}">キャンセル</a>
-      </div>
-    </form>
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">
+      {% if form.instance.pk %}配送先編集{% else %}新規配送先登録{% endif %}
+    </h2>
+    <p class="text-gray-500 text-sm">配送先情報を入力してください</p>
   </div>
+
+  <form method="post" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i data-lucide="alert-circle" class="h-5 w-5 text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">
+            {{ form.non_field_errors|join:", " }}
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div>
+      <label for="{{ form.member.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        会員 <span class="text-red-500">*</span>
+      </label>
+      <select name="{{ form.member.name }}" id="{{ form.member.id_for_label }}" required
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+        {% for value, text in form.member.field.widget.choices %}
+        <option value="{{ value }}" {% if form.member.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
+        {% endfor %}
+      </select>
+      {% if form.member.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.member.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label for="{{ form.label.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        配送先名 (例: 自宅) <span class="text-red-500">*</span>
+      </label>
+      <input type="text" name="{{ form.label.name }}" id="{{ form.label.id_for_label }}"
+        value="{{ form.label.value|default:'' }}" required
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+      {% if form.label.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.label.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label for="{{ form.recipient_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        宛名 <span class="text-red-500">*</span>
+      </label>
+      <input type="text" name="{{ form.recipient_name.name }}" id="{{ form.recipient_name.id_for_label }}"
+        value="{{ form.recipient_name.value|default:'' }}" required
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+      {% if form.recipient_name.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.recipient_name.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label for="{{ form.postal_code.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        郵便番号 <span class="text-red-500">*</span>
+      </label>
+      <input type="text" name="{{ form.postal_code.name }}" id="{{ form.postal_code.id_for_label }}"
+        value="{{ form.postal_code.value|default:'' }}" required
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+      {% if form.postal_code.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.postal_code.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label for="{{ form.address1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        住所1 (都道府県・市区町村) <span class="text-red-500">*</span>
+      </label>
+      <input type="text" name="{{ form.address1.name }}" id="{{ form.address1.id_for_label }}"
+        value="{{ form.address1.value|default:'' }}" required
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+      {% if form.address1.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.address1.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label for="{{ form.address2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        住所2 (番地・建物名) <span class="text-red-500">*</span>
+      </label>
+      <input type="text" name="{{ form.address2.name }}" id="{{ form.address2.id_for_label }}"
+        value="{{ form.address2.value|default:'' }}" required
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+      {% if form.address2.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.address2.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        電話番号
+      </label>
+      <input type="text" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}"
+        value="{{ form.phone.value|default:'' }}"
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+      {% if form.phone.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.phone.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div class="flex items-center">
+      <input type="checkbox" name="{{ form.is_active.name }}" id="{{ form.is_active.id_for_label }}"
+        class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded" {% if form.is_active.value %}checked{% endif %}>
+      <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+        有効
+      </label>
+    </div>
+
+    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
+      <a href="{% url 'shipping-list' %}"
+        class="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+        <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+        キャンセル
+      </a>
+      <button type="submit"
+        class="flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+        <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+        保存
+      </button>
+    </div>
+  </form>
+</div>
 {% endblock %}

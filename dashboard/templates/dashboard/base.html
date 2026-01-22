@@ -1,200 +1,94 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="utf-8">
-    <title>{% block title %}プロテイン注文管理{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ProteinAdmin{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --bg: #f8fafc;
-        --text: #0f172a;
-        --muted: #64748b;
-        --primary: #4f46e5;
-        --primary-dark: #4338ca;
-        --card: #ffffff;
-        --border: #e2e8f0;
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-        background: var(--bg);
-        color: var(--text);
-      }
-      a { color: inherit; text-decoration: none; }
-      .layout {
-        min-height: 100vh;
-        display: grid;
-        grid-template-columns: 240px 1fr;
-      }
-      .sidebar {
-        background: #0f172a;
-        color: #cbd5f5;
-        padding: 28px 22px;
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-      }
-      .brand {
-        font-weight: 800;
-        font-size: 20px;
-        color: #fff;
-      }
-      .nav a {
-        display: flex;
-        align-items: center;
-        padding: 12px 16px;
-        border-radius: 12px;
-        font-weight: 600;
-        color: #cbd5f5;
-      }
-      .nav a:hover, .nav a.active {
-        background: var(--primary);
-        color: #fff;
-        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
-      }
-      .logout {
-        margin-top: auto;
-        font-size: 13px;
-        color: #94a3b8;
-      }
-      .main {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-      }
-      .topbar {
-        height: 64px;
-        background: #fff;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 24px;
-      }
-      .page-title {
-        font-weight: 700;
-        font-size: 18px;
-      }
-      .actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: var(--muted);
-        font-size: 13px;
-      }
-      .pill {
-        background: #eef2ff;
-        color: var(--primary);
-        border: 1px solid #e0e7ff;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 999px;
-        font-size: 11px;
-      }
-      .logout-btn {
-        border: 1px solid var(--border);
-        background: #fff;
-        padding: 6px 12px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-size: 12px;
-      }
-      .content {
-        padding: 24px;
-      }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 18px;
-        box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        overflow: hidden;
-      }
-      th, td {
-        text-align: left;
-        padding: 12px 14px;
-        border-bottom: 1px solid var(--border);
-        font-size: 13px;
-      }
-      th { background: #f8fafc; font-weight: 700; color: var(--muted); }
-      tr:last-child td { border-bottom: none; }
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 10px 16px;
-        border-radius: 10px;
-        border: 1px solid transparent;
-        background: var(--primary);
-        color: #fff;
-        font-weight: 700;
-        font-size: 13px;
-        cursor: pointer;
-      }
-      .btn.secondary {
-        background: #fff;
-        color: var(--primary);
-        border-color: #e0e7ff;
-      }
-      .form-grid {
-        display: grid;
-        gap: 12px;
-        max-width: 520px;
-      }
-      label { font-weight: 700; font-size: 12px; color: var(--muted); }
-      input, select, textarea {
-        width: 100%;
-        padding: 9px 12px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        font-size: 14px;
-        background: #f8fafc;
-      }
-      .form-actions { display: flex; gap: 10px; }
-      .hint { font-size: 12px; color: var(--muted); }
-      @media (max-width: 960px) {
-        .layout { grid-template-columns: 1fr; }
-        .sidebar { display: none; }
-      }
+        body { font-family: 'Inter', sans-serif; }
     </style>
-  </head>
-  <body>
-    <div class="layout">
-      <aside class="sidebar">
-        <div class="brand">ProteinDash</div>
-        <nav class="nav">
-          <a href="{% url 'home' %}">ダッシュボード</a>
-          <a href="{% url 'order-create' %}">新規注文</a>
-          <a href="{% url 'order-list' %}">注文一覧</a>
-          <a href="{% url 'member-list' %}">会員管理</a>
-          <a href="{% url 'shipping-list' %}">配送先</a>
-        </nav>
-        <div class="logout">運用コンソール</div>
-      </aside>
-      <div class="main">
-        <header class="topbar">
-          <div class="page-title">{% block page_title %}{% endblock %}</div>
-          <div class="actions">
-            <span class="pill">Protein Ops</span>
-            <span>{{ request.user.email|default:request.user.get_username }}</span>
-            <form method="post" action="{% url 'logout' %}">
-              {% csrf_token %}
-              <button class="logout-btn" type="submit">ログアウト</button>
-            </form>
-          </div>
-        </header>
-        <main class="content">
-          {% block content %}{% endblock %}
-        </main>
-      </div>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="hidden md:flex flex-col w-64 bg-gray-900 text-white shadow-xl">
+            <div class="p-6 border-b border-gray-800 flex items-center space-x-3">
+                <div class="bg-orange-600 p-1.5 rounded-lg">
+                    <i data-lucide="dumbbell" class="text-white w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight leading-none">ProteinAdmin</h1>
+                    <span class="text-xs text-gray-500 font-medium">Pro Nutrition</span>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-4 py-6 overflow-y-auto space-y-1">
+                <a href="{% url 'home' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {% if request.resolver_match.url_name == 'home' %}bg-orange-600 text-white shadow-lg shadow-orange-900/20{% else %}text-gray-400 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span class="font-medium">ホーム</span>
+                </a>
+                <a href="{% url 'order-create' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {% if request.resolver_match.url_name == 'order-create' %}bg-orange-600 text-white shadow-lg shadow-orange-900/20{% else %}text-gray-400 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    <span class="font-medium">新規注文</span>
+                </a>
+                <a href="{% url 'order-list' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {% if request.resolver_match.url_name == 'order-list' %}bg-orange-600 text-white shadow-lg shadow-orange-900/20{% else %}text-gray-400 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span class="font-medium">注文履歴</span>
+                </a>
+                
+                <div class="my-4 border-t border-gray-800"></div>
+                
+                <a href="{% url 'member-list' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {% if request.resolver_match.url_name == 'member-list' %}bg-orange-600 text-white shadow-lg shadow-orange-900/20{% else %}text-gray-400 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span class="font-medium">会員情報</span>
+                </a>
+                <a href="{% url 'shipping-list' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {% if request.resolver_match.url_name == 'shipping-list' %}bg-orange-600 text-white shadow-lg shadow-orange-900/20{% else %}text-gray-400 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <i data-lucide="truck" class="w-5 h-5"></i>
+                    <span class="font-medium">配送先</span>
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-800">
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="flex items-center space-x-3 text-gray-400 hover:text-white transition-colors w-full px-4 py-2">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                        <span>ログアウト</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col h-full overflow-hidden">
+            <!-- Header (Mobile usually, but keeping simple structure) -->
+            <!-- Note: Mobile menu trigger omitted for MVP but header bar is needed for User Profile info if desired, or just layout padding.
+                 React App has a mobile header. Desktop header was inside Sidebar implicitly or explicit?
+                 React App: Sidebar is desktop only. Mobile has independent header.
+                 Common Layout: Main content area.
+            -->
+            
+            <main class="flex-1 overflow-y-auto p-4 md:p-8">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Top Bar with User Info (Optional based on React App)
+                         React App sidebar had user info? No, it had logout. 
+                         React App `Layout` component has a specific structure. 
+                         Let's add a small user indicator at top right if needed, or just follow the content.
+                         The React `Layout` didn't show a top bar on Desktop, only Sidebar.
+                         But the `Dashboard.tsx` had a "Welcome" message.
+                         I will stick to the Sidebar + Content layout.
+                    -->
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
     </div>
-  </body>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
 </html>

@@ -1,38 +1,135 @@
 {% extends 'dashboard/base.html' %}
 
-{% block title %}配送先{% endblock %}
-{% block page_title %}配送先{% endblock %}
+{% block title %}配送先管理 - ProteinAdmin{% endblock %}
 
 {% block content %}
-  <div style="margin-bottom: 12px;">
-    <a class="btn" href="{% url 'shipping-create' %}">新規配送先</a>
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">配送先管理</h2>
+      <p class="text-gray-500 text-sm">会員の配送先情報の確認と編集</p>
+    </div>
+    <a href="{% url 'shipping-create' %}"
+      class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-colors">
+      <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+      新規配送先登録
+    </a>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>配送先名</th>
-        <th>会員</th>
-        <th>郵便番号</th>
-        <th>宛名</th>
-        <th>有効</th>
-        <th>操作</th>
-      </tr>
-    </thead>
-    <tbody>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+    <div class="p-4 border-b border-gray-100 bg-gray-50 flex items-center space-x-4">
+      <span class="text-sm font-medium text-gray-700">会員絞り込み:</span>
+      <!-- Note: Populating this select requires logic to get all members. Check views.py if 'members' is available in ShippingListView context. -->
+      <!-- It might not be available by default in generic ListView unless added. -->
+      <!-- For MVP porting, I will assume a way to filter or just use client side if member name is in the card. -->
+      <!-- I'll use JS filter based on "data-member-id" in the cards. -->
+      <select id="memberFilter"
+        class="bg-white border border-gray-300 rounded-md text-sm py-1 px-2 text-gray-900 focus:ring-orange-500 focus:border-orange-500">
+        <option value="all">全て表示</option>
+        <!-- Ideally this should be populated from backend, but if not available in context, I can't iterate. 
+                  ShippingListView typically lists ShippingAddresses. 
+                  Accessing member list for dropdown requires `Member.objects.all()` in context.
+                  I'll check views.py later. For now, I will omit the OPTIONS loop or try to infer it from the unique members in the list via JS if needed, 
+                  OR better: just show "All" if I can't easily populate. 
+                  Actually, I can just leave it as "All" (static) or try to use `addresses` to extract members.
+                  Wait, `ShippingListView` only provides `addresses`. 
+                  I will hide the dropdown options generation logic for now or stick to a simple text filter if I can't populate it.
+                  BUT, I will use a simple workaround: Iterate through `addresses` and collect unique members in the loop? No, that's messy in template.
+                  I'll just add a placeholder or remove the filter if it's too complex without backend change.
+                  Actually, the user asked to "port design", so the UI element should exist.
+                  I will add a note that filtering requires backend support or just add a simple JS search input instead which is easier.
+                  However, I will simply add the Select element. If I can't populate options, it will just have "All". 
+             -->
+        <option disabled>会員リスト読み込み不可(Backend修正必要)</option>
+      </select>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4" id="addressGrid">
       {% for address in addresses %}
-        <tr>
-          <td>{{ address.label }}</td>
-          <td>{{ address.member.name }}</td>
-          <td>{{ address.postal_code }}</td>
-          <td>{{ address.recipient_name }}</td>
-          <td>{{ address.is_active }}</td>
-          <td><a href="{% url 'shipping-edit' address.id %}">編集</a></td>
-        </tr>
+      <div
+        class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white relative address-card"
+        data-member-id="{{ address.member.id }}">
+        <a href="{% url 'shipping-update' address.pk %}"
+          class="absolute top-4 right-4 text-gray-400 cursor-pointer hover:text-orange-600">
+          <i data-lucide="edit-2" class="w-4 h-4"></i>
+        </a>
+
+        <div class="flex items-center space-x-2 mb-3">
+          <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded">
+            {{ address.label }}
+          </span>
+          <span class="text-xs text-gray-500">
+            (会員: {{ address.member.name }})
+          </span>
+        </div>
+
+        <div class="space-y-2 text-sm text-gray-600">
+          <div class="flex items-start">
+            <i data-lucide="user" class="w-3.5 h-3.5 mt-1 mr-2 text-gray-400"></i>
+            <span class="font-medium text-gray-900">{{ address.recipient_name }} 様</span>
+          </div>
+          <div class="flex items-start">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 mt-1 mr-2 text-gray-400"></i>
+            <div>
+              <p>〒{{ address.postal_code }}</p>
+              <p>{{ address.address1 }}</p>
+              <p>{{ address.address2 }}</p>
+            </div>
+          </div>
+          {% if address.phone %}
+          <div class="flex items-center">
+            <i data-lucide="phone" class="w-3.5 h-3.5 mr-2 text-gray-400"></i>
+            <span>{{ address.phone }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
       {% empty %}
-        <tr>
-          <td colspan="6">配送先がありません。</td>
-        </tr>
+      <div class="col-span-full py-10 text-center text-gray-500">
+        該当する配送先は見つかりませんでした
+      </div>
       {% endfor %}
-    </tbody>
-  </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // JS to populate Member Filter from the cards themselves (Client-side aggregation)
+  document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.querySelectorAll('.address-card');
+    const select = document.getElementById('memberFilter');
+    const uniqueMembers = new Map();
+
+    // Collect members from cards
+    cards.forEach(card => {
+      const memberId = card.getAttribute('data-member-id');
+      const memberName = card.querySelector('.text-xs.text-gray-500').textContent.replace('(会員: ', '').replace(')', '').trim();
+      if (!uniqueMembers.has(memberId)) {
+        uniqueMembers.set(memberId, memberName);
+      }
+    });
+
+    // Clear placeholder and populate
+    select.innerHTML = '<option value="all">全て表示</option>';
+    uniqueMembers.forEach((name, id) => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+
+    // Filter Logic
+    select.addEventListener('change', function () {
+      const filterId = this.value;
+      cards.forEach(card => {
+        const cardMemberId = card.getAttribute('data-member-id');
+        if (filterId === 'all' || cardMemberId === filterId) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}

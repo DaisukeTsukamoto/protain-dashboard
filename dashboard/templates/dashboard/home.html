@@ -1,44 +1,122 @@
 {% extends 'dashboard/base.html' %}
 
-{% block title %}ダッシュボード{% endblock %}
-{% block page_title %}ダッシュボード{% endblock %}
+{% block title %}ホーム - ProteinAdmin{% endblock %}
 
 {% block content %}
-  <div class="card" style="margin-bottom: 16px;">
-    <h2 style="margin-top: 0;">プロテイン注文管理</h2>
-    <p class="hint">注文・会員・配送先をまとめて確認できます。</p>
+<div class="space-y-6">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">ホーム</h2>
+    <p class="text-gray-500">システム概要と最新の状況</p>
   </div>
-  <div class="card" style="margin-bottom: 16px;">
-    <h3 style="margin-top: 0;">サマリー</h3>
-    <p>会員: {{ member_count }} | 配送先: {{ shipping_count }} | 注文: {{ order_count }}</p>
+
+  <!-- Stat Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Total Orders -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500 mb-1">総注文数</p>
+        <h3 class="text-2xl font-bold text-gray-900">{{ order_count }}</h3>
+        <p class="text-xs text-gray-400 mt-2">全期間</p>
+      </div>
+      <div class="p-3 rounded-lg bg-orange-600">
+        <i data-lucide="shopping-bag" class="text-white w-6 h-6"></i>
+      </div>
+    </div>
+
+    <!-- Pending Orders -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500 mb-1">未対応・対応中</p>
+        <h3 class="text-2xl font-bold text-gray-900">{{ pending_count }}</h3>
+        <p class="text-xs text-gray-400 mt-2">アクションが必要です</p>
+      </div>
+      <div class="p-3 rounded-lg bg-yellow-500">
+        <i data-lucide="alert-circle" class="text-white w-6 h-6"></i>
+      </div>
+    </div>
+
+    <!-- Completed Orders -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500 mb-1">完了済み</p>
+        <h3 class="text-2xl font-bold text-gray-900">{{ completed_count }}</h3>
+        <p class="text-xs text-gray-400 mt-2">正常に出荷されました</p>
+      </div>
+      <div class="p-3 rounded-lg bg-green-600">
+        <i data-lucide="check-circle" class="text-white w-6 h-6"></i>
+      </div>
+    </div>
+
+    <!-- Members -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500 mb-1">会員数</p>
+        <h3 class="text-2xl font-bold text-gray-900">{{ member_count }}</h3>
+        <p class="text-xs text-gray-400 mt-2">アクティブ会員</p>
+      </div>
+      <div class="p-3 rounded-lg bg-slate-700">
+        <i data-lucide="users" class="text-white w-6 h-6"></i>
+      </div>
+    </div>
   </div>
-  <div class="card">
-    <h3 style="margin-top: 0;">最新の注文</h3>
-    {% if recent_orders %}
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>作成日時</th>
-            <th>会員</th>
-            <th>ステータス</th>
-            <th>配送先</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for order in recent_orders %}
+
+  <!-- Charts Area (Simplified for MVP) -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Status Distribution -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">最新の注文 (5件)</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
             <tr>
-              <td>{{ order.id }}</td>
-              <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
-              <td>{{ order.member.name }}</td>
-              <td>{{ order.status }}</td>
-              <td>{{ order.shipping_address.label }}</td>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日時</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">会員</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p class="hint">注文がありません。</p>
-    {% endif %}
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {% for order in recent_orders %}
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#{{ order.id }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ order.member.name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if order.status == '受付' %}bg-orange-100 text-orange-800
+                                    {% elif order.status == '対応中' %}bg-yellow-100 text-yellow-800
+                                    {% elif order.status == '完了' %}bg-green-100 text-green-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                  {{ order.status }}
+                </span>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">注文がありません</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sales Trend (Placeholder for now) -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">週間注文推移</h3>
+      <div
+        class="h-64 w-full bg-gray-50 rounded-lg flex items-center justify-center border border-dashed border-gray-300">
+        <p class="text-gray-400 text-sm">チャート表示エリア (MVPでは省略)</p>
+      </div>
+    </div>
   </div>
+
+  <div class="bg-orange-50 border border-orange-100 p-4 rounded-lg">
+    <h4 class="font-bold text-orange-900 mb-2">ようこそ、管理者様</h4>
+    <p class="text-sm text-orange-800">
+      本日も業務お疲れ様です。未対応の注文が <strong>{{ pending_count }}</strong> 件あります。
+      <a href="{% url 'order-list' %}" class="ml-2 font-semibold underline hover:text-orange-950">注文履歴を確認する</a>
+    </p>
+  </div>
+</div>
 {% endblock %}

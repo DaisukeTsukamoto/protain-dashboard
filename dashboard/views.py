@@ -14,6 +14,8 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context['member_count'] = Member.objects.filter(is_active=True).count()
         context['shipping_count'] = ShippingAddress.objects.filter(is_active=True).count()
         context['order_count'] = Order.objects.count()
+        context['pending_count'] = Order.objects.filter(status__in=['受付', '対応中']).count()
+        context['completed_count'] = Order.objects.filter(status='完了').count()
         context['recent_orders'] = Order.objects.select_related('member', 'shipping_address').order_by('-created_at')[:5]
         return context
 

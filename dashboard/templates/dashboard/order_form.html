@@ -1,37 +1,147 @@
-{% extends 'dashboard/base.html' %}
+﻿{% extends 'dashboard/base.html' %}
 
-{% block title %}新規注文{% endblock %}
-{% block page_title %}新規注文{% endblock %}
+{% block title %}新規注文 - ProteinAdmin{% endblock %}
 
 {% block content %}
-  <div class="card">
-    <form method="post" class="form-grid">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
-      <div>
-        <label for="{{ form.member.id_for_label }}">会員</label>
-        {{ form.member }}
-        {{ form.member.errors }}
-      </div>
-      <div>
-        <label for="{{ form.shipping_address.id_for_label }}">配送先</label>
-        {{ form.shipping_address }}
-        {{ form.shipping_address.errors }}
-      </div>
-      <div>
-        <label for="{{ form.status.id_for_label }}">ステータス</label>
-        {{ form.status }}
-        {{ form.status.errors }}
-      </div>
-      <div>
-        <label for="{{ form.memo.id_for_label }}">メモ</label>
-        {{ form.memo }}
-        {{ form.memo.errors }}
-      </div>
-      <div class="form-actions">
-        <button class="btn" type="submit">登録</button>
-        <a class="btn secondary" href="{% url 'order-list' %}">キャンセル</a>
-      </div>
-    </form>
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">新規注文登録</h2>
+    <p class="text-gray-500 text-sm">新しい注文情報をシステムに登録します</p>
   </div>
+
+  <form method="post" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i data-lucide="alert-circle" class="h-5 w-5 text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">
+            {{ form.non_field_errors|join:", " }}
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div>
+      <label for="{{ form.member.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        会員 <span class="text-red-500">*</span>
+      </label>
+      <select name="{{ form.member.name }}" id="{{ form.member.id_for_label }}" required
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+        {% for value, text in form.member.field.widget.choices %}
+        <option value="{{ value }}" {% if form.member.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ text }}</option>
+        {% endfor %}
+      </select>
+      {% if form.member.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.member.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label for="{{ form.shipping_address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        配送先 <span class="text-red-500">*</span>
+      </label>
+      <select name="{{ form.shipping_address.name }}" id="{{ form.shipping_address.id_for_label }}" required
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500 disabled:bg-gray-100 disabled:text-gray-400">
+        <option value="">配送先を選択してください</option>
+        {% for address in form.fields.shipping_address.queryset %}
+        <option value="{{ address.pk }}" data-member-id="{{ address.member_id }}" {% if form.shipping_address.value|stringformat:"s" == address.pk|stringformat:"s" %}selected{% endif %}>{{ address.label }} - {{ address.address1 }}{{ address.address2 }}</option>
+        {% endfor %}
+      </select>
+      <p id="noAddressHint" class="mt-1 text-xs text-red-500 hidden">この会員には配送先が登録されていません。</p>
+      {% if form.shipping_address.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.shipping_address.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        ステータス <span class="text-red-500">*</span>
+      </label>
+      <select name="{{ form.status.name }}" id="{{ form.status.id_for_label }}" required
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+        {% for value, text in form.status.field.widget.choices %}
+        <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>{{ text }}</option>
+        {% endfor %}
+      </select>
+      {% if form.status.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.status.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label for="{{ form.memo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        メモ (任意)
+      </label>
+      <textarea name="{{ form.memo.name }}" id="{{ form.memo.id_for_label }}" rows="4"
+        class="w-full bg-white border border-gray-300 rounded-lg shadow-sm py-2 px-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+        placeholder="特記事項があれば入力してください">{{ form.memo.value|default:"" }}</textarea>
+      {% if form.memo.errors %}
+      <p class="mt-1 text-sm text-red-600">{{ form.memo.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
+      <a href="{% url 'order-list' %}"
+        class="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+        <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+        キャンセル
+      </a>
+      <button type="submit"
+        class="flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+        <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+        注文を作成
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const memberSelect = document.getElementById('{{ form.member.id_for_label }}');
+    const addressSelect = document.getElementById('{{ form.shipping_address.id_for_label }}');
+    const noAddressHint = document.getElementById('noAddressHint');
+    const originalOptions = Array.from(addressSelect.options);
+
+    function filterAddresses() {
+      const selectedMemberId = memberSelect.value;
+      addressSelect.innerHTML = '';
+      let hasAddress = false;
+
+      originalOptions.forEach(opt => {
+        const memberId = opt.getAttribute('data-member-id');
+        if (!memberId) {
+          if (opt.value === '') {
+            addressSelect.appendChild(opt);
+          }
+        } else {
+          if (memberId === selectedMemberId) {
+            addressSelect.appendChild(opt);
+            hasAddress = true;
+          }
+        }
+      });
+
+      if (!selectedMemberId) {
+        addressSelect.disabled = true;
+        noAddressHint.classList.add('hidden');
+      } else {
+        addressSelect.disabled = false;
+        if (!hasAddress) {
+          noAddressHint.classList.remove('hidden');
+        } else {
+          noAddressHint.classList.add('hidden');
+        }
+      }
+    }
+
+    memberSelect.addEventListener('change', filterAddresses);
+    filterAddresses();
+  });
+</script>
 {% endblock %}

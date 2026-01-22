@@ -1,36 +1,139 @@
 {% extends 'dashboard/base.html' %}
 
-{% block title %}注文一覧{% endblock %}
-{% block page_title %}注文一覧{% endblock %}
+{% block title %}注文履歴 - ProteinAdmin{% endblock %}
 
 {% block content %}
-  <div style="margin-bottom: 12px;">
-    <a class="btn" href="{% url 'order-create' %}">新規注文</a>
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">注文履歴</h2>
+      <p class="text-gray-500 text-sm">過去の注文一覧と詳細確認</p>
+    </div>
+    <a href="{% url 'order-create' %}"
+      class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+      <i data-lucide="plus-circle" class="w-4 h-4"></i>
+      新規注文登録
+    </a>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>作成日時</th>
-        <th>会員</th>
-        <th>ステータス</th>
-        <th>配送先</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for order in orders %}
-        <tr>
-          <td>{{ order.id }}</td>
-          <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
-          <td>{{ order.member.name }}</td>
-          <td>{{ order.status }}</td>
-          <td>{{ order.shipping_address.label }}</td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="5">注文がありません。</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <!-- Filters -->
+    <div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between bg-gray-50">
+      <div class="relative w-full sm:w-64">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i data-lucide="search" class="text-gray-400 w-4 h-4"></i>
+        </div>
+        <input type="text" id="searchInput" placeholder="注文ID または 会員名"
+          class="pl-10 pr-4 py-2 w-full bg-white border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all shadow-sm">
+      </div>
+
+      <div class="flex items-center space-x-2 w-full sm:w-auto">
+        <i data-lucide="filter" class="text-gray-400 w-4 h-4"></i>
+        <select id="statusFilter"
+          class="block w-full sm:w-40 bg-white border border-gray-300 text-gray-900 py-2 px-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-sm">
+          <option value="all">全てのステータス</option>
+          <option value="受付">受付</option>
+          <option value="対応中">対応中</option>
+          <option value="完了">完了</option>
+          <option value="キャンセル">キャンセル</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200" id="orderTable">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">注文ID
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">会員名
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">配送先
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">作成日時
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス
+            </th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for order in orders %}
+          <tr class="hover:bg-gray-50 transition-colors order-row" data-status="{{ order.status }}"
+            data-search="{{ order.id }} {{ order.member.name }}">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600">#{{ order.id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.member.name }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.shipping_address.label }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if order.status == '受付' %}bg-orange-100 text-orange-800
+                                {% elif order.status == '対応中' %}bg-yellow-100 text-yellow-800
+                                {% elif order.status == '完了' %}bg-green-100 text-green-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ order.status }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <button class="text-gray-400 hover:text-orange-600">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+              注文がありません
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination (Static for MVP as per request logic mainly being design port) -->
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700">
+            全 <span class="font-medium">{{ orders|length }}</span> 件を表示
+          </p>
+        </div>
+        <!-- Pagination buttons omitted for MVP if default view is full list -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const rows = document.querySelectorAll('.order-row');
+
+    function filterOrders() {
+      const term = searchInput.value.toLowerCase();
+      const status = statusFilter.value;
+
+      rows.forEach(row => {
+        const text = row.getAttribute('data-search').toLowerCase();
+        const rowStatus = row.getAttribute('data-status');
+
+        const matchesSearch = text.includes(term);
+        const matchesStatus = status === 'all' || rowStatus === status;
+
+        if (matchesSearch && matchesStatus) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    searchInput.addEventListener('input', filterOrders);
+    statusFilter.addEventListener('change', filterOrders);
+  });
+</script>
 {% endblock %}

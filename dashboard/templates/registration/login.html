@@ -1,127 +1,124 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="utf-8">
-    <title>ログイン</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-      :root {
-        --bg: #e2e8f0;
-        --text: #0f172a;
-        --muted: #64748b;
-        --primary: #4f46e5;
-        --primary-dark: #4338ca;
-        --card: #ffffff;
-        --border: #e2e8f0;
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-      }
-      .wrap {
-        width: min(960px, 100%);
-        display: grid;
-        grid-template-columns: 1fr 420px;
-        gap: 24px;
-        align-items: center;
-      }
-      .hero {
-        padding: 24px;
-      }
-      .hero h1 {
-        font-size: 32px;
-        margin: 0 0 12px;
-      }
-      .hero p {
-        color: var(--muted);
-        margin: 0;
-        line-height: 1.7;
-      }
-      .card {
-        background: var(--card);
-        border-radius: 18px;
-        border: 1px solid var(--border);
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
-        overflow: hidden;
-      }
-      .card-body { padding: 32px; }
-      .card-body h2 { margin: 0 0 6px; font-size: 20px; }
-      .card-body p { margin: 0 0 18px; color: var(--muted); font-size: 13px; }
-      label {
-        display: block;
-        font-weight: 700;
-        font-size: 12px;
-        color: var(--muted);
-        margin-top: 14px;
-      }
-      input {
-        width: 100%;
-        height: 44px;
-        padding: 0 12px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: #f8fafc;
-        font-size: 14px;
-        margin-top: 6px;
-      }
-      .btn {
-        width: 100%;
-        margin-top: 20px;
-        padding: 12px 14px;
-        background: var(--primary);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .btn:hover { background: var(--primary-dark); }
-      .card-footer {
-        text-align: center;
-        font-size: 12px;
-        color: var(--muted);
-        background: #f8fafc;
-        border-top: 1px solid var(--border);
-        padding: 12px;
-      }
-      .errorlist { color: #b91c1c; font-size: 12px; margin: 8px 0 0; }
-      @media (max-width: 900px) {
-        .wrap { grid-template-columns: 1fr; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <section class="hero">
-        <h1>プロテイン注文管理システム</h1>
-        <p>管理者向けの運用コンソールです。ログインして注文・会員・配送先を一元管理します。</p>
-      </section>
-      <div class="card">
-        <div class="card-body">
-          <h2>管理者ログイン</h2>
-          <p>運用アカウントでダッシュボードにアクセスします。</p>
-          <form method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            <label for="{{ form.username.id_for_label }}">メールアドレス / ユーザー名</label>
-            {{ form.username }}
-            {{ form.username.errors }}
-            <label for="{{ form.password.id_for_label }}">パスワード</label>
-            {{ form.password }}
-            {{ form.password.errors }}
-            <button class="btn" type="submit">ログイン</button>
-          </form>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン - ProteinAdmin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="flex justify-center text-orange-600 mb-2">
+      <i data-lucide="dumbbell" class="w-12 h-12"></i>
+    </div>
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      ProteinAdmin Pro
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      最強の管理ダッシュボードへようこそ
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+      <!-- Tabs (Visual only, Login is active) -->
+      <div class="flex border-b border-gray-200">
+        <button
+          class="flex-1 py-4 text-center text-sm font-medium transition-colors border-b-2 border-orange-600 text-orange-600 bg-orange-50/50">
+          ログイン
+        </button>
+      </div>
+
+      <div class="py-8 px-4 sm:px-10">
+        <form class="space-y-6" method="post">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+          <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">{{ form.non_field_errors|join:", " }}</h3>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if next %}
+          <input type="hidden" name="next" value="{{ next }}">
+          {% endif %}
+
+          <div>
+            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">
+              メールアドレス
+            </label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-lucide="mail" class="w-4 h-4 text-gray-400"></i>
+              </div>
+              <input id="{{ form.username.id_for_label }}" name="{{ form.username.name }}" type="text"
+                autocomplete="username" required
+                class="block w-full pl-10 sm:text-sm bg-white border border-gray-300 rounded-md py-2 text-gray-900 placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="admin@example.com" value="{{ form.username.value|default:'' }}">
+            </div>
+            {% if form.username.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.username.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700">
+              パスワード
+            </label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-lucide="lock" class="w-4 h-4 text-gray-400"></i>
+              </div>
+              <input id="{{ form.password.id_for_label }}" name="{{ form.password.name }}" type="password"
+                autocomplete="current-password" required
+                class="block w-full pl-10 sm:text-sm bg-white border border-gray-300 rounded-md py-2 text-gray-900 placeholder-gray-400 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="••••••••">
+            </div>
+            {% if form.password.errors %}
+            <p class="mt-1 text-sm text-red-600">{{ form.password.errors|join:", " }}</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <button type="submit"
+              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+              ログイン
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-white text-gray-500">
+                セキュアな管理システム
+              </span>
+            </div>
+          </div>
         </div>
-        <div class="card-footer">ProteinDash Management System</div>
       </div>
     </div>
-  </body>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+
 </html>
