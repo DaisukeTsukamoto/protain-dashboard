@@ -2,11 +2,12 @@
   "version": 2,
   "buildCommand": "",
   "installCommand": "",
-  "functions": {
-    "api/index.py": {
-      "runtime": "python@3.11.0"
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/static/(.*)",
