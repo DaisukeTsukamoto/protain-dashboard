@@ -1,0 +1,36 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}会員管理{% endblock %}
+{% block page_title %}会員管理{% endblock %}
+
+{% block content %}
+  <div style="margin-bottom: 12px;">
+    <a class="btn" href="{% url 'member-create' %}">新規会員</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>氏名</th>
+        <th>メールアドレス</th>
+        <th>電話番号</th>
+        <th>有効</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in members %}
+        <tr>
+          <td>{{ member.name }}</td>
+          <td>{{ member.email }}</td>
+          <td>{{ member.phone }}</td>
+          <td>{{ member.is_active }}</td>
+          <td><a href="{% url 'member-edit' member.id %}">編集</a></td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5">会員がいません。</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

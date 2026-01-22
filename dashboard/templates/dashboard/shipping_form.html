@@ -1,0 +1,57 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}配送先{% endblock %}
+{% block page_title %}配送先{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <form method="post" class="form-grid">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div>
+        <label for="{{ form.member.id_for_label }}">会員</label>
+        {{ form.member }}
+        {{ form.member.errors }}
+      </div>
+      <div>
+        <label for="{{ form.label.id_for_label }}">配送先名</label>
+        {{ form.label }}
+        {{ form.label.errors }}
+      </div>
+      <div>
+        <label for="{{ form.postal_code.id_for_label }}">郵便番号</label>
+        {{ form.postal_code }}
+        {{ form.postal_code.errors }}
+      </div>
+      <div>
+        <label for="{{ form.address1.id_for_label }}">住所1</label>
+        {{ form.address1 }}
+        {{ form.address1.errors }}
+      </div>
+      <div>
+        <label for="{{ form.address2.id_for_label }}">住所2</label>
+        {{ form.address2 }}
+        {{ form.address2.errors }}
+      </div>
+      <div>
+        <label for="{{ form.recipient_name.id_for_label }}">宛名</label>
+        {{ form.recipient_name }}
+        {{ form.recipient_name.errors }}
+      </div>
+      <div>
+        <label for="{{ form.phone.id_for_label }}">電話番号</label>
+        {{ form.phone }}
+        {{ form.phone.errors }}
+      </div>
+      <div>
+        <label for="{{ form.is_active.id_for_label }}">有効</label>
+        {{ form.is_active }}
+        {{ form.is_active.errors }}
+      </div>
+      <div class="form-actions">
+        <button class="btn" type="submit">保存</button>
+        <a class="btn secondary" href="{% url 'shipping-list' %}">キャンセル</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

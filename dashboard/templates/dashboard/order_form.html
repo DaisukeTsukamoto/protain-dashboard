@@ -1,0 +1,37 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}新規注文{% endblock %}
+{% block page_title %}新規注文{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <form method="post" class="form-grid">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div>
+        <label for="{{ form.member.id_for_label }}">会員</label>
+        {{ form.member }}
+        {{ form.member.errors }}
+      </div>
+      <div>
+        <label for="{{ form.shipping_address.id_for_label }}">配送先</label>
+        {{ form.shipping_address }}
+        {{ form.shipping_address.errors }}
+      </div>
+      <div>
+        <label for="{{ form.status.id_for_label }}">ステータス</label>
+        {{ form.status }}
+        {{ form.status.errors }}
+      </div>
+      <div>
+        <label for="{{ form.memo.id_for_label }}">メモ</label>
+        {{ form.memo }}
+        {{ form.memo.errors }}
+      </div>
+      <div class="form-actions">
+        <button class="btn" type="submit">登録</button>
+        <a class="btn secondary" href="{% url 'order-list' %}">キャンセル</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

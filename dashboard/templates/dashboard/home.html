@@ -1,0 +1,44 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}ダッシュボード{% endblock %}
+{% block page_title %}ダッシュボード{% endblock %}
+
+{% block content %}
+  <div class="card" style="margin-bottom: 16px;">
+    <h2 style="margin-top: 0;">プロテイン注文管理</h2>
+    <p class="hint">注文・会員・配送先をまとめて確認できます。</p>
+  </div>
+  <div class="card" style="margin-bottom: 16px;">
+    <h3 style="margin-top: 0;">サマリー</h3>
+    <p>会員: {{ member_count }} | 配送先: {{ shipping_count }} | 注文: {{ order_count }}</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top: 0;">最新の注文</h3>
+    {% if recent_orders %}
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>作成日時</th>
+            <th>会員</th>
+            <th>ステータス</th>
+            <th>配送先</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recent_orders %}
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+              <td>{{ order.member.name }}</td>
+              <td>{{ order.status }}</td>
+              <td>{{ order.shipping_address.label }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="hint">注文がありません。</p>
+    {% endif %}
+  </div>
+{% endblock %}

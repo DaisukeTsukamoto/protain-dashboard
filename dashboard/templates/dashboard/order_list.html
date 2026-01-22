@@ -1,0 +1,36 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}注文一覧{% endblock %}
+{% block page_title %}注文一覧{% endblock %}
+
+{% block content %}
+  <div style="margin-bottom: 12px;">
+    <a class="btn" href="{% url 'order-create' %}">新規注文</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>作成日時</th>
+        <th>会員</th>
+        <th>ステータス</th>
+        <th>配送先</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+        <tr>
+          <td>{{ order.id }}</td>
+          <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+          <td>{{ order.member.name }}</td>
+          <td>{{ order.status }}</td>
+          <td>{{ order.shipping_address.label }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5">注文がありません。</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
