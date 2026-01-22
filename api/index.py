@@ -1,5 +1,6 @@
 """
 Vercel serverless function entry point for Django application
+Based on Vercel's Python function standard format
 """
 import os
 import sys
@@ -20,20 +21,27 @@ django.setup()
 from django.core.wsgi import get_wsgi_application
 from django.core.handlers.wsgi import WSGIRequest
 
-# Get WSGI application
+# Get WSGI application (cached for performance)
 wsgi_application = get_wsgi_application()
 
 
 def handler(request):
     """
     Vercel serverless function handler
-    Converts Vercel request to Django WSGI request and returns response
+    Vercel passes request as a dictionary with the following structure:
+    {
+        'method': 'GET',
+        'path': '/',
+        'queryStringParameters': {},
+        'headers': {},
+        'body': ''
+    }
     """
-    # Extract request information from Vercel request
+    # Extract request information from Vercel request dictionary
     method = request.get('method', 'GET')
     path = request.get('path', '/')
-    query_string = request.get('queryStringParameters', {}) or {}
-    headers = request.get('headers', {}) or {}
+    query_string = request.get('queryStringParameters') or {}
+    headers = request.get('headers') or {}
     body = request.get('body', '')
     
     # Build query string
@@ -43,40 +51,41 @@ def handler(request):
     else:
         query_string_str = ''
     
-    # Build WSGI environ
+    # Convert body to bytes if it's a string
+    if isinstance(body, str):
+        body_bytes = body.encode('utf-8')
+    else:
+        body_bytes = body or b''
+    
+    # Build WSGI environ dictionary
     environ = {
         'REQUEST_METHOD': method,
         'PATH_INFO': path,
         'QUERY_STRING': query_string_str,
         'CONTENT_TYPE': headers.get('content-type', ''),
-        'CONTENT_LENGTH': str(len(body)) if body else '0',
-        'SERVER_NAME': headers.get('host', 'localhost').split(':')[0],
+        'CONTENT_LENGTH': str(len(body_bytes)),
+        'SERVER_NAME': headers.get('host', 'localhost').split(':')[0] if headers.get('host') else 'localhost',
         'SERVER_PORT': headers.get('host', 'localhost').split(':')[1] if ':' in headers.get('host', '') else '80',
         'wsgi.version': (1, 0),
         'wsgi.url_scheme': headers.get('x-forwarded-proto', 'https'),
-        'wsgi.input': BytesIO(body.encode('utf-8') if isinstance(body, str) else body),
+        'wsgi.input': BytesIO(body_bytes),
         'wsgi.errors': sys.stderr,
         'wsgi.multithread': False,
         'wsgi.multiprocess': True,
         'wsgi.run_once': False,
     }
     
-    # Add HTTP headers to environ
+    # Add HTTP headers to environ (convert to HTTP_* format)
     for key, value in headers.items():
-        key = key.upper().replace('-', '_')
-        if key not in ('CONTENT_TYPE', 'CONTENT_LENGTH'):
-            environ[f'HTTP_{key}'] = value
+        key_upper = key.upper().replace('-', '_')
+        if key_upper not in ('CONTENT_TYPE', 'CONTENT_LENGTH'):
+            environ[f'HTTP_{key_upper}'] = value
     
-    # Create Django request
+    # Create Django WSGI request
     django_request = WSGIRequest(environ)
     
     # Get response from Django
     response = wsgi_application.get_response(django_request)
-    
-    # Convert Django response to Vercel response format
-    response_headers = {}
-    for header, value in response.items():
-        response_headers[header] = value
     
     # Get response body
     if hasattr(response, 'content'):
@@ -84,6 +93,12 @@ def handler(request):
     else:
         body_content = b''.join(response)
     
+    # Convert response headers to dictionary
+    response_headers = {}
+    for header, value in response.items():
+        response_headers[header] = value
+    
+    # Return response in Vercel format
     return {
         'statusCode': response.status_code,
         'headers': response_headers,
